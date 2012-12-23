@@ -9,5 +9,15 @@
 		<managed-bean-class>HelloBean</managed-bean-class>
 		<managed-bean-scope>application</managed-bean-scope>
 	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>timeline</managed-bean-name>
+		<managed-bean-class>Timeline</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
+	<managed-bean>
+		<managed-bean-name>linkCreator</managed-bean-name>
+		<managed-bean-class>LinkCreator</managed-bean-class>
+		<managed-bean-scope>application</managed-bean-scope>
+	</managed-bean>
 
 </faces-config>

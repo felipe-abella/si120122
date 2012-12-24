@@ -10,18 +10,26 @@
 <title>Welcome</title>
 </head>
 <body>
-
+	
 	<h:form>
-		<h:outputText value="New link to post (don't put \"www\"):" />
+		<h:outputText value="New link to post: " />
 		<h:inputText value="#{linkCreator.str}" />
-		<h:commandButton action="interface" value="Post" actionListener="#{timeline.postEvent}" />
+		<h:commandButton action="interface" value="Post"
+			actionListener="#{timeline.postEvent}" />
 		<br>
 		<h:outputText value="#{timeline.errorMessage}" />
 	</h:form>
-
-	<br> Last posts:
 	<br>
+	<h:form>
+		<h:commandButton action="interface" value="Older posts"
+				actionListener="#{timeline.olderPostsEvent}" />
+		<h:outputText value="#{timeline.showingRangeStr }" />
+		<h:commandButton action="interface" value="Newer posts"
+				actionListener="#{timeline.newerPostsEvent}" />
+		<br>
+	</h:form>
 	<h:outputText value="#{timeline.lastPostsStr}" escape="false" />
+
 	<br> Average post time:
 	<h:outputText value="#{timeline.averagePostTimeStr}" />
 	<br> Last post time:

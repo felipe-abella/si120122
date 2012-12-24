@@ -18,6 +18,7 @@ public class Timeline {
 	private String errorMessage = null;
 
 	private List<Post> posts;
+	private int skipNLast = 1;
 	
 	/**
 	 * Creates a new Timeline
@@ -51,7 +52,9 @@ public class Timeline {
 			errorMessage = "An unexpected error occurred!";
 		} catch (InvalidLinkException e) {
 			errorMessage = "Your link is invalid, it must start with http:// or https://";
-		} 
+		}
+		
+		skipNLast = 0;
 	}
 	
 	public String getErrorMessage() {
@@ -105,15 +108,39 @@ public class Timeline {
 		return result.toString() + " seconds";
 	}
 	
+	public void newerPostsEvent(ActionEvent event) {
+		if (skipNLast >= MANY_SHOW)
+			skipNLast -= MANY_SHOW;
+	}
+	
+	public void olderPostsEvent(ActionEvent event) {
+		if (skipNLast + MANY_SHOW < posts.size())
+			skipNLast += MANY_SHOW;
+	}
+	
+	/**
+	 * Returns a string explaining which range of posts are being shown on "getLastNPosts()"
+	 * @return
+	 */
+	public String getShowingRangeStr() {
+		if (posts.size() == 0)
+				return "Showing 0 posts.";
+		
+		int start = 1+skipNLast;
+		int end = Math.min(1+skipNLast+(MANY_SHOW-1), posts.size());
+		
+		return "Showing [" + start + " - " + end + "] out of " + posts.size() + " posts";
+	}
+	
 	/**
 	 * Returns a list of the last (at most)N posts from this Timeline
 	 * @param N
 	 * @return the list
 	 */
-	public List<Post> getLastNPosts(int N) {
+	public List<Post> getLastNPosts() {
 		List<Post> result = new ArrayList<Post>();
-		for (int i = 1; i <= N && posts.size()-i >= 0; i++)
-			result.add(posts.get(posts.size()-i));
+		for (int i = 1; i <= MANY_SHOW && posts.size()-i-skipNLast >= 0; i++)
+			result.add(posts.get(posts.size()-i-skipNLast));
 		return result;
 	}
 	
@@ -123,7 +150,7 @@ public class Timeline {
 	 */
 	public String getLastPostsStr() {
 		String result = "";
-		List<Post> list = getLastNPosts(MANY_SHOW);
+		List<Post> list = getLastNPosts();
 		for (int i = 0; i < list.size(); i++)
 			result += list.get(i) + "<br/>";
 		if (list.size() == 0)

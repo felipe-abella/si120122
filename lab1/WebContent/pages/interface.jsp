@@ -10,7 +10,7 @@
 <title>Welcome</title>
 </head>
 <body>
-	
+
 	<h:form>
 		<h:outputText value="New link to post: " />
 		<h:inputText value="#{linkCreator.str}" />
@@ -20,23 +20,23 @@
 		<h:outputText value="#{timeline.errorMessage}" />
 	</h:form>
 	<br>
-	<h:form>
-		<h:commandButton action="interface" value="Older posts"
-				actionListener="#{timeline.olderPostsEvent}" />
-		<h:outputText value="#{timeline.showingRangeStr }" />
-		<h:commandButton action="interface" value="Newer posts"
-				actionListener="#{timeline.newerPostsEvent}" />
-		<br>
-	</h:form>
-	<h:outputText value="#{timeline.lastPostsStr}" escape="false" />
-
-	<br> Average post time:
-	<h:outputText value="#{timeline.averagePostTimeStr}" />
-	<br> Last post time:
-	<h:outputText value="#{timeline.lastPostTimeStr}" />
-	<br> Most common website:
-	<h:outputText value="#{timeline.mostCommonWebsite}" />
-	<br>
+	<table border="1">
+		<tr>
+			<td><h:form>
+					<h:commandButton action="interface" value="Older posts"
+						actionListener="#{timeline.olderPostsEvent}" />
+					<h:outputText value="#{timeline.showingRangeStr }" />
+					<h:commandButton action="interface" value="Newer posts"
+						actionListener="#{timeline.newerPostsEvent}" />
+					<br>
+				</h:form> <h:outputText value="#{timeline.lastPostsStr}" escape="false" /></td>
+			<td><br> Average post time: <h:outputText
+					value="#{timeline.averagePostTimeStr}" /> <br> Last post
+				time: <h:outputText value="#{timeline.lastPostTimeStr}" /> <br>
+				Most common website: <h:outputText
+					value="#{timeline.mostCommonWebsite}" /> <br></td>
+		</tr>
+	</table>
 
 </body>
 	</html>

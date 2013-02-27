@@ -1,0 +1,61 @@
+<project name="lab1" default="compila" basedir=".">
+
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property name="dist" location="dist"/>
+  <property name="junitjar" location="lib/junit.jar"/> 
+  <property name="hamcrestjar" location="lib/org.hamcrest.core_1.1.0.v20090501071000.jar"/>
+  <property name="webjars" location="WebContent/WEB-INF/lib/commons-beanutils-1.8.3.jar:WebContent/WEB-INF/lib/commons-codec-1.3.jar:WebContent/WEB-INF/lib/commons-collections-3.2.jar:WebContent/WEB-INF/lib/commons-digester-1.8.jar:WebContent/WEB-INF/lib/commons-logging-1.1.1.jar:WebContent/WEB-INF/lib/javax.servlet.jsp.jstl-1.2.1.jar:WebContent/WEB-INF/lib/javax.servlet.jsp.jstl-api-1.2.1.jar:WebContent/WEB-INF/lib/myfaces-api-2.1.5.jar:WebContent/WEB-INF/lib/myfaces-bundle-2.1.5.jar:WebContent/WEB-INF/lib/myfaces-impl-2.1.5.jar"/>
+  <property name="tomcatjars" location="tomcat_libs/annotations-api.jar:tomcat_libs/catalina-ant.jar:tomcat_libs/catalina-ha.jar:tomcat_libs/catalina.jar:tomcat_libs/catalina-tribes.jar:tomcat_libs/ecj-3.3.1.jar:tomcat_libs/ecj-3.6.2.jar:tomcat_libs/el-api.jar:tomcat_libs/jasper-el.jar:tomcat_libs/jasper.jar:tomcat_libs/jsp-api.jar:tomcat_libs/servlet-api.jar:tomcat_libs/tomcat-api.jar:tomcat_libs/tomcat-coyote.jar:tomcat_libs/tomcat-dbcp.jar:tomcat_libs/tomcat-i18n-es.jar:tomcat_libs/tomcat-i18n-fr.jar:tomcat_libs/tomcat-i18n-ja.jar:tomcat_libs/tomcat-util.jar"/>
+
+  <target name="limpa">
+    <delete dir="${build}"/>
+    <delete dir="${dist}"/>
+    <delete dir="tmp"/>
+  </target>
+  <target name="clean" depends="limpa"/>
+
+  <target name="compila" depends="limpa">
+    <mkdir dir="${build}"/>
+    <javac srcdir="${src}" destdir="${build}" classpath="${junitjar}:${webjars}:${tomcatjars}"/>
+  </target>
+  <target name="compile" depends="compila"/>
+
+  <target name="testa" depends="compila">
+    <delete dir="tmp"/>
+    <mkdir dir="tmp"/>
+    <mkdir dir="tmp/rawtestoutput"/>
+    <junit printsummary="yes" failureproperty="junit.failure">
+      <classpath>
+	<pathelement path="${build}"/>
+	<pathelement path="${junitjar}"/>
+	<pathelement path="${java.class.path}"/>
+	<pathelement path="${webjars}"/>
+	<pathelement path="${hamcrestjar}"/>
+	<pathelement path="${tomcatjars}"/>
+      </classpath>
+
+      <batchtest todir="tmp/rawtestoutput">
+	<fileset dir="${src}">
+	  <include name="*Test.java"/>
+	</fileset>
+	<formatter type="xml"/>
+      </batchtest>
+    </junit>
+    <junitreport todir="tmp">
+      <fileset dir="tmp/rawtestoutput"/>
+      <report todir="test-reports"/>
+    </junitreport>
+    <fail if="junit.failure" message="Junit failed"/>
+  </target>
+  <target name="test" depends="testa"/>  
+
+  <target name="war" depends="compila">
+    <war destfile="dist/lab1.war" webxml="WebContent/WEB-INF/web.xml">
+        <fileset dir="WebContent"/>
+<!--	<lib dir="WebContent/WEB-INF/lib"/>  -->
+        <classes dir="${build}"/>
+    </war>
+  </target>
+
+</project>

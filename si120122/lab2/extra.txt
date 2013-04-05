@@ -1,0 +1,5 @@
+1) Tem um outro metodo de recombinacao, onde linhas menores aparecem antes.
+2) O texto recombinado aparece lado a lado com o texto original.
+3) Tratamento de erros:
+   -> A pagina de registro de textos evita que um texto vazio seja inserido.
+   -> A pagina de selecao de texto e metodo para recombinar exibe mensagens de erro caso o texto ou metodo nao seja selecionado.

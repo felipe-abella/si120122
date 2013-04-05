@@ -1,0 +1,41 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>SI, Lab2</title>
+    </h:head>
+    <h:body>
+        <big><big>SI, Lab2</big></big>
+        <p:separator/>
+        <h:form>
+            <h:outputText value="Choose the text you want to recombine:"/>
+            <br/>
+            <p:selectOneListbox  value="#{recombinerBean.originalText}" style="width: 100%; height: 250px"
+                                 required="true" requiredMessage="You have to choose a text!">
+                <f:selectItems value="#{bookBean.book.textList}" var="text" itemLabel="#{text.preview}"
+                               itemValue="#{text.value}"/>
+            </p:selectOneListbox>
+            <br/>
+            <h:outputText value="Choose the recombination method:"/>
+            <br/>
+            <p:selectOneListbox  value="#{recombinerBean.recombiner}" style="width: 100%; height: 100px"
+                                 required="true" requiredMessage="You have to choose a recombinining method!">
+                <f:selectItems value="#{recombinerBean.recombiners}" var="recombiner" itemValue="#{recombiner.description}"
+                               itemLabel="#{recombiner.description}"/>
+            </p:selectOneListbox>
+
+            <p:messages/>
+            
+            <h:commandButton value="Recombine" action="#{recombinerBean.startRecombining}"/>
+        </h:form>
+        
+        <h:form>
+            <h:commandButton value="Cancel" action="index?faces-redirect=true"/>
+        </h:form>
+
+    </h:body>
+</html>

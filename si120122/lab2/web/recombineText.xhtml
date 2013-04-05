@@ -1,0 +1,42 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:f="http://java.sun.com/jsf/core"
+      xmlns:ui="http://java.sun.com/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui">
+    <h:head>
+        <title>SI, Lab2</title>
+    </h:head>
+    <h:body>
+        <big><big>SI, Lab2</big></big>
+        <p:separator/>
+        <h:form>
+            <table style="width: 100%">
+                <tr>
+                    <td style="width: 50%">
+                        <p:panel style="width: 90%" header="Original text"> 
+                            <h:inputTextarea readonly="true" style="width: 100%; height:350px"
+                                             value="#{recombinerBean.formattedOriginalText}"/>
+                        </p:panel> 
+                    </td>
+                    <td style="width: 50%">
+                        <p:panel style="width: 90%" header="Recombined text">
+                            <h:inputTextarea 
+                                readonly="true" style="width: 100%; height:350px"
+                                value="#{recombinerBean.recombinedText}"/>
+                        </p:panel>
+                    </td>
+                </tr>
+                <tr>
+                    <td/>
+                    <td>
+                        <h:commandButton value="Add next line" action="#{recombinerBean.addAnotherLine}"
+                                         disabled="#{!recombinerBean.hasAnotherLine}"/>
+                    </td>
+                </tr>
+            </table>
+            <p:commandButton value="Go to start page" action="index"/>
+        </h:form>
+    </h:body>
+</html>

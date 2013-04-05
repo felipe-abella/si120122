@@ -37,11 +37,7 @@ public class RecombinerBean implements Serializable {
     }
     
     public String getFormattedOriginalText() {
-        Text text = new Text(originalText);
-        String result = "";
-        for (int i = 0; i < text.countLines(); i++)
-            result += text.getStringLine(i) + "\n";
-        return result;
+        return new Text(originalText).getFormatted();
     }
 
     public void setOriginalText(String originalText) {

@@ -185,4 +185,16 @@ public class Text {
         
         return result;
     }
+    
+    /**
+     * Return the text formatted, i.e., with "\n"s between lines.
+     * 
+     * @return the text formatted
+     */
+    public String getFormatted() {
+        String result = "";
+        for (int i = 0; i < countLines(); i++)
+            result += getStringLine(i) + "\n";
+        return result;
+    }
 }

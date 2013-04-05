@@ -24,13 +24,13 @@ public class TextBean implements Serializable {
     }
     
     public String saveText() {
-        if (!value.trim().equals(""))
+        if (!value.trim().equals("")) {
+            bookBean.getBook().addText(value);
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage("New text added to the list!"));
-        else
+        } else
             FacesContext.getCurrentInstance().addMessage(null, new FacesMessage(FacesMessage.SEVERITY_ERROR,
                     "New text ignored because it was empty", "The new text wasn't added to the list because it was empty!"));
         
-        bookBean.getBook().addText(value);
         setValue("");
         return "index";
     }

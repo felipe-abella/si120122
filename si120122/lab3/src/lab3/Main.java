@@ -1,21 +1,10 @@
 package lab3;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
 import java.nio.file.NotDirectoryException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Scanner;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
-import javax.swing.table.AbstractTableModel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
-import javax.swing.table.TableColumnModel;
 
 class KeywordCountColumnModel extends DefaultTableColumnModel {
 
@@ -30,69 +19,14 @@ class KeywordCountColumnModel extends DefaultTableColumnModel {
     }
 }
 
-class KeywordCountTableModel extends AbstractTableModel {
-
-    private String[] keywords = new String[]{"abstract", "continue", "for",
-        "new", "switch", "assert", "default", "if", "package", "synchronized",
-        "boolean", "do", "goto", "private", "this", "break", "double",
-        "implements", "protected", "throw", "byte", "else", "import", "public",
-        "throws", "case", "enum", "instanceof", "return", "transient", "catch",
-        "extends", "int", "short", "try", "char", "final", "interface",
-        "static", "void", "class", "finally", "long", "strictfp", "volatile",
-        "const", "float", "native", "super", "while"};
-    private int nkeyword = keywords.length;
-    private int[] counts = new int[nkeyword];
-    private Map<String, Integer> idof;
-
-    public KeywordCountTableModel() {
-        idof = new HashMap<String, Integer>();
-        for (int i = 0; i < nkeyword; i++) {
-            idof.put(keywords[i], i);
-        }
-    }
-
-    public synchronized void countWord(String word) {
-        if (idof.containsKey(word)) {
-            counts[idof.get(word)]++;
-            fireTableDataChanged();
-        }
-    }
-
-    public synchronized void clear() {
-        for (int i = 0; i < nkeyword; i++) {
-            counts[i] = 0;
-        }
-        fireTableDataChanged();
-    }
-
-    @Override
-    public synchronized int getRowCount() {
-        return nkeyword;
-    }
-
-    @Override
-    public synchronized int getColumnCount() {
-        return 2;
-    }
-
-    @Override
-    public synchronized Object getValueAt(int rowIndex, int columnIndex) {
-        if (columnIndex == 0) {
-            return keywords[rowIndex];
-        }
-        return counts[rowIndex];
-    }
-}
-
 /**
  *
  * @author felipe
  */
-public class Main extends javax.swing.JFrame {
+public class Main extends javax.swing.JFrame implements AnalyzerListener {
 
-    private int nfound = 0, nanalyzed = 0;
-    private long startTime = 0, elapsedTime = 0;
-    private KeywordCountTableModel tableModel;
+    private KeywordCounter tableModel;
+    private Analyzer analyzer;
 
     /**
      * Creates new form Main
@@ -100,7 +34,11 @@ public class Main extends javax.swing.JFrame {
     public Main() {
         initComponents();
         setLocationRelativeTo(null);
+
         tableModel = (KeywordCountTableModel) keywordsTable.getModel();
+
+        analyzer = new Analyzer(tableModel);
+        analyzer.addListener(this);
     }
 
     /**
@@ -216,7 +154,7 @@ public class Main extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void showError(String errorMsg) {
+    private synchronized void showError(String errorMsg) {
         JDialog dialog = new JDialog(this, errorMsg, true);
         dialog.getContentPane().add(new JLabel(errorMsg));
         dialog.setLocationRelativeTo(this);
@@ -225,115 +163,77 @@ public class Main extends javax.swing.JFrame {
     }
 
     private void analyzeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeButtonActionPerformed
+        analyzeButton.setEnabled(false);
+        clearButton.setEnabled(false);
+
         String dirName = dirNameField.getText();
-        String maxThreadString = maxThreadField.getText();
         int maxthread;
 
-        if (maxThreadString.isEmpty()) {
-            maxthread = -1;
+        if (maxThreadField.getText().isEmpty()) {
+            maxthread = 0;
         } else {
             try {
-                maxthread = Integer.parseInt(maxThreadString);
+                maxthread = Integer.parseInt(maxThreadField.getText());
             } catch (NumberFormatException ex) {
                 maxthread = -1;
             }
-
-            if (maxthread < 1) {
-                showError("Numero de threads inválido!");
-                return;
-            }
         }
+        if (maxthread < 0) {
+            showError("Numero de threads inválido!");
+            return;
+        }
+
         try {
-            start(dirName, maxthread);
-        } catch (NotDirectoryException ex) {
+            analyzer.start(dirName, maxthread);
+        } catch (IllegalArgumentException ex) {
             showError(ex.getMessage());
         }
     }//GEN-LAST:event_analyzeButtonActionPerformed
 
-    private void processFile(File file) {
-        nfound++;
-
-        try {
-            if (file.getName().endsWith(".java")) {
-                Scanner scn = new Scanner(file);
-                while (scn.hasNext()) {
-                    String word = scn.next();
-                    tableModel.countWord(word);
-                }
-                nanalyzed++;
-                scn.close();
-            }
-        } catch (FileNotFoundException ex) {
-        } finally {
-            long endTime = System.currentTimeMillis();
-            synchronized (this) {
-                elapsedTime = endTime - startTime;
-            }
-            updateUI();
-        }
-    }
-
     private synchronized void updateUI() {
-        if (nfound == 0) {
+        if (analyzer.getNfound() == 0) {
             analyzeCountLabel.setText("Nenhum arquivo achado!");
         } else {
             analyzeCountLabel.setText(String.format(
-                    "%d arquivo(s) encontrados(s), %d processado(s)!", nfound, nanalyzed));
+                    "%d arquivo(s) encontrados(s), %d processado(s)!",
+                    analyzer.getNfound(), analyzer.getNanalyzed()));
         }
 
-        if (nanalyzed == 0) {
+        if (analyzer.isRunning())
+            analyzeTimeLabel.setText("Análise em andamento!");
+        else if (analyzer.getNanalyzed() == 0) {
             analyzeTimeLabel.setText("Nenhuma análise foi feita!");
         } else {
             analyzeTimeLabel.setText(String.format(
-                    "Ultima análise levou %d milisegundos!", elapsedTime));
+                    "Ultima análise levou %d milisegundos!", analyzer.getElapsedTime()));
         }
     }
 
-    private void processDir(File dir) {
-        for (File child : dir.listFiles()) {
-            if (child.isDirectory()) {
-                processDir(child);
-            } else if (child.isFile()) {
-                processFile(child);
-            }
-        }
-    }
-
-    private void start(String dirName, int maxthread) throws NotDirectoryException {
-        final File dir = new File(dirName);
-
-        if (!dir.isDirectory()) {
-            throw new NotDirectoryException("\"" + dirName + "\" is not a directory!");
-        }
-
-        analyzeButton.setEnabled(false);
-        clearButton.setEnabled(false);
-
-        new Thread() {
-            @Override
-            public void run() {
-                startTime = System.currentTimeMillis();
-
-                processDir(dir);
-
-                analyzeButton.setEnabled(true);
-                clearButton.setEnabled(true);
-            }
-        }.start();
-    }
-
-    private void clear() {
-        nfound = 0;
-        nanalyzed = 0;
-        elapsedTime = 0;
-        startTime = 0;
+    private synchronized void clear() {
         tableModel.clear();
+        analyzer.clear();
         updateUI();
     }
 
     private void clearButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_clearButtonActionPerformed
         clear();
     }//GEN-LAST:event_clearButtonActionPerformed
+
+    @Override
+    public void analyzingStarted() {
+    }
+
+    @Override
+    public synchronized void analyzingFinished() {
+        updateUI();
+        analyzeButton.setEnabled(true);
+        clearButton.setEnabled(true);
+    }
+
+    @Override
+    public synchronized void newFileFound() {
+        updateUI();
+    }
 
     /**
      * @param args the command line arguments

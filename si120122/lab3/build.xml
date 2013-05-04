@@ -71,4 +71,9 @@
     nbproject/build-impl.xml file. 
 
     -->
+
+    <target name="limpa" depends="clean"/>
+    <target name="compila" depends="compile"/>
+    <target name="testa" depends="test"/>
+    <target name="roda" depends="run"/>
 </project>

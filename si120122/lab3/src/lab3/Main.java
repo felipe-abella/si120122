@@ -1,13 +1,18 @@
 package lab3;
 
-import java.nio.file.NotDirectoryException;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
 import javax.swing.table.DefaultTableColumnModel;
 import javax.swing.table.TableColumn;
 
+/**
+ * Implements the ColumnModel for the keyword table.
+ */
 class KeywordCountColumnModel extends DefaultTableColumnModel {
 
+    /**
+     * Creates the model.
+     */
     public KeywordCountColumnModel() {
         TableColumn col = new TableColumn(0);
         col.setHeaderValue("Keyword");
@@ -20,8 +25,7 @@ class KeywordCountColumnModel extends DefaultTableColumnModel {
 }
 
 /**
- *
- * @author felipe
+ * Main class.
  */
 public class Main extends javax.swing.JFrame implements AnalyzerListener {
 
@@ -29,7 +33,7 @@ public class Main extends javax.swing.JFrame implements AnalyzerListener {
     private Analyzer analyzer;
 
     /**
-     * Creates new form Main
+     * Creates new form Main.
      */
     public Main() {
         initComponents();
@@ -162,10 +166,7 @@ public class Main extends javax.swing.JFrame implements AnalyzerListener {
         dialog.setVisible(true);
     }
 
-    private void analyzeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeButtonActionPerformed
-        analyzeButton.setEnabled(false);
-        clearButton.setEnabled(false);
-
+    private synchronized void start() {
         String dirName = dirNameField.getText();
         int maxthread;
 
@@ -187,7 +188,15 @@ public class Main extends javax.swing.JFrame implements AnalyzerListener {
             analyzer.start(dirName, maxthread);
         } catch (IllegalArgumentException ex) {
             showError(ex.getMessage());
+            return;
         }
+
+        analyzeButton.setEnabled(false);
+        clearButton.setEnabled(false);
+    }
+
+    private void analyzeButtonActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_analyzeButtonActionPerformed
+        start();
     }//GEN-LAST:event_analyzeButtonActionPerformed
 
     private synchronized void updateUI() {
@@ -199,9 +208,9 @@ public class Main extends javax.swing.JFrame implements AnalyzerListener {
                     analyzer.getNfound(), analyzer.getNanalyzed()));
         }
 
-        if (analyzer.isRunning())
+        if (analyzer.isRunning()) {
             analyzeTimeLabel.setText("Análise em andamento!");
-        else if (analyzer.getNanalyzed() == 0) {
+        } else if (analyzer.getNdirfound() == 0) {
             analyzeTimeLabel.setText("Nenhuma análise foi feita!");
         } else {
             analyzeTimeLabel.setText(String.format(
@@ -219,10 +228,16 @@ public class Main extends javax.swing.JFrame implements AnalyzerListener {
         clear();
     }//GEN-LAST:event_clearButtonActionPerformed
 
+    /**
+     * Called when the analyzer starts.
+     */
     @Override
     public void analyzingStarted() {
     }
 
+    /**
+     * Called when the analyzer finishes.
+     */
     @Override
     public synchronized void analyzingFinished() {
         updateUI();
@@ -230,12 +245,17 @@ public class Main extends javax.swing.JFrame implements AnalyzerListener {
         clearButton.setEnabled(true);
     }
 
+    /**
+     * Called when the analyzer finds (and possibly analyzes) a new file.
+     */
     @Override
     public synchronized void newFileFound() {
         updateUI();
     }
 
     /**
+     * Starts the program.
+     *
      * @param args the command line arguments
      */
     public static void main(String args[]) {
